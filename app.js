@@ -22,13 +22,30 @@ app.get("/", (req, res) => {
 
 async function createConnection() {
   try {
-    mongoose
+    // let conn = null;
+    await mongoose
       .connect(MONGO_URL)
-      .then(() => console.log("connected to mongoDB"))
+      .then(() => {
+        console.log("connected to mongoDB");
+        // conn = mongoose.connection;
+        // console.log("conn", conn);
+      })
       .catch((err) => console.error("Could not connect to mongoDB", err));
+
+    // const conn = mongoose.connection;
+
+    // conn.on("error", () => console.error(console, "connection error"));
+
+    // conn.once("open", () =>
+    //   console.info("Connection to Database is successful")
+    // );
+    return mongoose.connection;
+    // console.log("conn", conn);
   } catch (error) {
     console.log("error while connecting to database", error);
   }
 }
 
-export const client = await createConnection();
+export const dbConnection = await createConnection();
+
+// "AgencyId":"1", "Name":"", "Address1":"", "Address2":"", "State":"", "City":"", "PhoneNumber":""
