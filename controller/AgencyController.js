@@ -18,40 +18,81 @@ export const createAgency = async (req, res) => {
   } catch (error) {
     await session.abortTransaction();
     console.error(error);
-    const err = handleErrors(error);
-    console.log("err", err);
-    res.status(400).send(err);
+    let err = null;
+    let statusCode = 400;
+    if (error.message.includes("Agency validation failed")) {
+      Object.values(error.errors).forEach((errors) => {
+        err[errors.properties.path] = errors.properties.message;
+      });
+    } else if (error.name === "MongoServerError" && error.code === 11000) {
+      statusCode = 409;
+      return (err["agencyId"] =
+        error.message.slice(0, error.message.indexOf(":")) +
+        " " +
+        error.message.slice(error.message.indexOf("{")));
+    } else {
+      err[error.name] = error.message;
+      statusCode = 500;
+    }
+
+    res.status(statusCode).send(err);
   } finally {
     session.endSession();
   }
 };
 
-export const agencyDetails = async (req, res) => {
+export const topClientAgency = async (req, res) => {
+  console.log("inside topClientAgency");
   try {
-    // check if ageny exist if not send 404
-    //else send response
+    var group = {
+      $group: {
+        _id: "$TotalBill",
+        fullDocument: { $push: "$$ROOT" },
+      },
+    };
+
+    var sort = { $sort: { _id: -1 } };
+    var limit = { $limit: 1 };
+
+    const agency = await Client.aggregate([
+      {
+        $lookup: {
+          from: "agencies",
+          localField: "AgencyId",
+          foreignField: "AgencyId",
+          as: "AgencyDoc",
+        },
+      },
+      { $unwind: "$AgencyDoc" },
+      {
+        $project: {
+          _id: false,
+          AgencyName: "$AgencyDoc.Name",
+          ClientName: "$Name",
+          TotalBill: "$TotalBill",
+        },
+      },
+      group,
+      sort,
+      limit,
+      { $unwind: "$fullDocument" },
+      {
+        $project: {
+          _id: false,
+          AgencyName: "$fullDocument.AgencyName",
+          ClientName: "$fullDocument.ClientName",
+          TotalBill: "$fullDocument.TotalBill",
+        },
+      },
+    ]);
+
+    if (!agency) {
+      res.status(404).send("Data for given client id not found");
+    }
+
+    res.send(agency);
   } catch (error) {
     console.error(error);
+    res.status(500).send(error);
   }
-};
-
-const handleErrors = (error) => {
-  let err = {};
-  console.log("error.name", error.name);
-  console.log("error.name", error.message);
-
-  if (error.message.includes("Agency validation failed")) {
-    Object.values(error.errors).forEach((errors) => {
-      err[errors.properties.path] = errors.properties.message;
-    });
-  } else if (error.name === "MongoServerError" && error.code === 11000) {
-    return (err["agencyId"] =
-      error.message.slice(0, error.message.indexOf(":")) +
-      " " +
-      error.message.slice(error.message.indexOf("{")));
-  } else {
-    err[error.name] = error.message;
-  }
-
-  return err;
 };

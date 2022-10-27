@@ -1,11 +1,12 @@
 import express from "express";
-import { createAgency } from "../controller/AgencyController.js";
+import {
+  createAgency,
+  topClientAgency,
+} from "../controller/AgencyController.js";
 
 const router = express.Router();
-router.get("/", (req, res) => {
-  res.send("default request made");
-});
 
 router.post("/", createAgency);
+router.get("/", topClientAgency);
 
 export const agencyRouter = router;

@@ -28,7 +28,7 @@ const clientSchema = mongoose.Schema({
     required: [true, "Please enter a Phone Number"],
   },
   TotalBill: {
-    type: String,
+    type: Number,
     required: [true, "Please enter a Total Bill"],
   },
 });
