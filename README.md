@@ -25,7 +25,7 @@
 
   <mark>Pass token in header as "x-access-token":"token string"</mark>
 
-  2.This API should create an agency and client in single request
+2.This API should create an agency and client in single request
   `http://localhost:5000/api/agency`
 
 - Request
@@ -54,7 +54,7 @@
 - Response
   `Agency and clienet Created Successfully`
 
-  3.This API should update a client detail.
+3.This API should update a client detail.
   `http://localhost:5000/api/agency/client/3`
 
 - Request
@@ -66,7 +66,7 @@
 - Response
   `Client details updated successfully`
 
-  4.This API should return name of agency along with client details which has top client(s) with maximum total bill, below fields should be part of response
+4.This API should return name of agency along with client details which has top client(s) with maximum total bill, below fields should be part of response
   `http://localhost:5000/api/agency`
 
 - Request
