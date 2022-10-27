@@ -14,22 +14,24 @@ export const createAgency = async (req, res) => {
     await Client.create([{ ...client }], { session });
     await session.commitTransaction();
 
-    res.send(`Agency Created Successfully`);
+    res.send(`Agency and clienet Created Successfully`);
   } catch (error) {
     await session.abortTransaction();
     console.error(error);
-    let err = null;
+    let err;
     let statusCode = 400;
     if (error.message.includes("Agency validation failed")) {
+      err = {};
       Object.values(error.errors).forEach((errors) => {
         err[errors.properties.path] = errors.properties.message;
       });
     } else if (error.name === "MongoServerError" && error.code === 11000) {
+      err = "";
       statusCode = 409;
-      return (err["agencyId"] =
+      err +=
         error.message.slice(0, error.message.indexOf(":")) +
         " " +
-        error.message.slice(error.message.indexOf("{")));
+        error.message.slice(error.message.indexOf("{"));
     } else {
       err[error.name] = error.message;
       statusCode = 500;
