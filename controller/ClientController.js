@@ -1,7 +1,6 @@
 import { Client } from "../models/Client.js";
 
 export const updateClient = async (req, res) => {
-  console.log("inside updateClient");
   try {
     const ClientId = req.params.ClientId;
     const filter = { ClientId: ClientId };
@@ -10,7 +9,6 @@ export const updateClient = async (req, res) => {
     let clientObj = await Client.findOneAndUpdate(filter, update, {
       new: true,
     });
-    console.log(" clientObj", clientObj);
     if (!clientObj) {
       return res.status(404).send("Data for given client id not found");
     }

@@ -42,7 +42,6 @@ export const createAgency = async (req, res) => {
 };
 
 export const topClientAgency = async (req, res) => {
-  console.log("inside topClientAgency");
   try {
     var group = {
       $group: {
